@@ -1,0 +1,177 @@
+<chapt id="git">Git, controle de versões
+
+<p>
+<sect id="s-git-historia">Sobre o Git
+<p>
+Sistema de controle de versão, distribuído sob a versão 2 da GNU Public License, foi criado originalmente para ser o sistema de controle de versões do Kernel Linux. 
+Seu desenvolvedor foi o próprio Linus Torvalds, criador do Kernel Linux. 
+Inicialmente o Git foi uma alternativa ao software proprietário BitKeeper.
+<p>
+Conceitualmente o Git trabalha com branches, merges, commits e histórico de desenvolvimento. 
+
+<p>
+<strong>Branches</strong> são ramificações do repositório pai. 
+<strong>Merges</strong> são as mesclas entre o repositório pai e os filhos.
+<strong>Commit</strong> é a ação de enviar para o repositório filho, ou pai, as modificações locais.
+
+<p> 
+O Git trabalha com quatro diretórios:
+<list>
+<item>.Git, contém todos os arquivos versionados.
+<item>Working Directory, contém os arquivos de trabalho atuais.
+<item>Stage, temporário que contém arquivos de trabalho antes de serem commitados.
+<item>Stash, temporário que pode conter arquivos do Stage.
+</list>
+
+<p>
+<sect id="s-git-caracteristicas">Características e critérios
+<p>
+São características do Git :
+<p>
+<list>
+<item>Suporte consistente para desenvolvimentos não-lineares
+<item>Desenvolvimento distribuído
+<item>Compatibilidade com protocolos/sistemas existentes
+<item>Manipulação eficiente de projetos extensos
+<item>Autenticação criptográfica do histórico
+<item>Modelo baseado em ferramentas
+<item>Estratégias de mescla (merge) conectáveis
+<item>Empacotamento periódico explícito de objetos
+</list>
+
+<p>
+Os critérios para o projeto do Git foram:
+<p>
+<list>
+<item> Usar o CVS como exemplo a NÃO ser seguido. 
+<item> Suportar Fluxo distribuído.
+<item> Proteções fortes contra corrompimento de arquivos.
+<item> Alta performance. 
+</list>
+
+<p>
+Sobre o merge, o Git trabalha com três formas para mesclar os projetos:
+<p>
+<list>
+<item>Resolve
+<item>Recursive
+<item>Octopus
+</list>
+
+<p>
+O Git é um projeto portável, possuíndo compatibilidade com sistemas operacionais UNIX Like, Windows e Mac.
+
+<p>
+<sect id="s-git-comandos">Comandos do Git
+<p>
+Existem várias GUIs para o Git, por padrão, a interface do Git é o gitk, que deve ser chamdo via terminal a partir do diretório versionado ou
+que será versionado. 
+
+Para chamar o gitk :
+<example>
+$ gitk
+</example>
+<p>
+Porém, é possível utilizar o git diretamente no terminal.
+<p>
+Criar novo repositório, a partir de um diretório local:
+<example>
+$ git init
+</example>
+<p>
+Obter um repositório, local, remoto ou na internet:
+<example>
+$ git clone caminho 
+</example>
+<p>
+Adicionar todos arquivos do diretório no Stage:
+<example>
+$ git add 
+</example>
+<p>
+Adicionar arquivo específico no Stage:
+<example>
+$ git add arquivo
+</example>
+<p>
+Commitando as alterações dos arquivos adicionados:
+<example>
+$ git commit -m "breve comentário a respeito das alterações". 
+</example>
+<p>
+Enviar as alterações commitadas para o repositório remoto:
+<example>
+$ git push origin
+</example>
+<p>
+Enviar as alterações commitadas para o repositório remoto específico:
+(substituir master pelo nome do branche (repositório)
+<example>
+$ git push origin master
+</example>
+<p>
+Atualizar o repositório local com novas modificações do repositório remoto:
+<example>
+$ git pull
+</example>
+<p>
+Mesclar alterações locais com alterações do repositório remoto:
+<example>
+$ git merge nome_do_branch
+</example>
+<strong>*</strong> Nos casos acima do Git tenta fazer o merge (junção) automaticamente, nem sempre é possível.
+Nesses casos é criado um conflito que deve ser resolvido. 
+O usuário é o responsável por corrir esses conflitos para poder enviar o arquivo para o repositório remoto. 
+com o comando git add.
+<p>
+Visualizar as diferenças entre arquivos :
+<example>
+$ git diff branch_de_origem branch_de_destino
+</example>
+<p>
+Voltar ao último commit :
+<example>
+$ git reset --hard HEAD~1 
+</example>
+<p>
+Desfazer alterações de arquivo no Stage:
+<example>
+$ git checkout -- nome_do_arquivo
+</example>
+<p>
+Visualizar log:
+<example>
+$ git log
+</example>
+<p>
+Rótulos :
+<strong>*</strong> Criar rótulos é importante, por exemplo, para gerar releases de software, ou para marcar grandes
+alterações no ciclo de desenvolvimento do projeto. 
+
+Criar um rótulo:
+<example>
+$ git tag 0.0.1 8h7g6f5e4d
+</example>
+<strong>*</strong> 8h7g6f5e4d são os dez primeiros caractéres do ID do commit a ser referenciado pelo rótulo.
+É possível obter o id com o comando git log.
+<strong>*</strong> É possível omitir o id do commit.
+<p>
+Enviar rótulo para o respositório remoto:
+<example>
+$ git push origin 0.0.1 
+</example>
+<p>
+Enviar todos os rótulos para o respositório remoto:
+<example>
+$ git push --tag 
+</example>
+<p>
+Criar branch a partir de um rótulo
+<example>
+$ git checkout -b nome_do_branch 0.0.1 
+</example>
+<p>
+Usar saídas coloridas:
+<example>
+$ git config color.ui true
+</example>

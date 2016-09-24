@@ -1,0 +1,153 @@
+<chapt id="systemd">SYSTEMD, o novo e controverso sistema de inicialização do Linux
+
+<sect id="s-systemd-historia">Um pouco história sobre o systemd
+
+<sect1 id="s-systemd-sysvinit">sysvinit
+ <p>
+Quando foi criado o primeiro Unix em 1970 por Ken Thompson e Denis
+Ritchie, seu nome foi um batismo pela mudança de filosofia de seu
+antecessor, multics, que era time-sharing, para um sistema com um
+único processo que se iniciava e controlava o restante do sistema:
+o init.  Único e Unix.  Entendeu a brincadeira?
+<p>
+Quando Linux começou a surgir como sistema operacional, foi adotado um sistema 
+de init compatível com padrão SYSV, que basicamente lia os scripts colocados em 
+<file>/etc/init.d/rc<strong>&lt;n&gt;</strong>.d</file> no padrão de RedHat/Suse, ou em 
+<file>/etc/rc<strong>&lt;n&gt;</strong>.d</file> no padrão Debian, e inicializava como shell 
+script, rodando <prgn>/bin/sh</prgn> todos os scripts que começassem com 
+<strong>S</strong>.  Cada diretório de inicialização tinha um <strong>&lt;n&gt;</strong> referente ao 
+corrente runlevel.  Então um boot em initlevel 5, todos os scripts em 
+<file>/etc/rc5.d/S*</file> seriam lidos.  Não somente lidos, mas executados como 
+script e tendo como argumento o parâmetro <strong>start</strong>.
+<p>
+Em termos bem simplistas, o que o init padrão SYSV fazia era (usando Debian como exemplo):
+<p> 
+<example>
+level=$(runlevel | cut -d" " -f 2) # ler qual o runlevel atual
+for script in /etc/rc${level}.d/S*
+    do
+    /bin/sh $script start
+done
+</example>
+<p>
+Da mesma forma, ao mudar de runlevel (o que acontecia ao desligar o sistema), os 
+scripts que tinham <strong>K</strong> como primeira letra eram executados com o 
+argumento <strong>stop</strong>
+<p>
+Assim por muitos anos os sistemas GNU/Linux viveram felizes inicializando e 
+terminando seus sistemas.  Em geral qualquer um poderia criar um script de 
+inicialização utilizando um formato parecido com o seguinte:
+<example>
+#! /bin/sh
+
+case $1 in
+    start) fazendo coisas de start ;;
+    stop) fazendo coisas de stop ;;
+    status) verificando se está rodando ou não;
+    restart) $0 stop
+             $0 start
+             ;;
+    *) echo "Use: $0 [start|stop|status]"
+esac
+</example>
+<p>
+O problema de toda essa bela simplicidade é que se por algum motivo a parte do script que 
+era chamada parasse, os outros scripts não eram executados.  Isso levava 
+geralmente os scripts de inicialização pouco testados a gerar belos travamentos 
+em servidores depois de reboots.
+<p>
+A primeira solução adotada foi a mais óbvia: colocar todo mundo pra rodar em 
+background usando <strong>&amp;</strong>.  Essa solução era perfeita e 
+resolvia o problema de travamento na inicialização mas... (sempre tem um mas) 
+alguns scripts dependiam de outros scripts, que não tinham terminado de 
+inicializar.  Então veio o segundo problema: ordenação desses scripts.
+<p>
+<sect1 id="s-systemd-upstart">upstart
+<p>
+O Upstart, desenvolvido pela Canonical, tinha como objetivo substituir o daemon init do Linux, 
+tendo como grande trunfo ser orientado a eventos. 
+Isso significa que, um evento pode iniciar um serviço, que inicia outro evento e dispara outro serviço, 
+e assim consecutivamente.
+Tinha como meta compatibilidade total com o init System V, podendo rodar scritps deste init sem modificações. 
+<sect1 id="s-systemd-systemd">systemd
+<p>
+Semelhante ao Upstart, porém, o Systemd elimina o uso de scritps de inicialização. 
+Apesar disso, este sistema e gerenciador de serviços pode criar chamadas para scripts no momento da inicialização.
+Seu paralelismo é mais agressivo que o Upstart e utiliza sockets D-Bus (mecanismo de intercomunicação entre processos concorrentes).
+Ele, o Systemd, se propõe a realizar a inicialização do sistema de forma mais rápida, usando paralelismo e ordem de prioridade.
+Para garantir que o sistema inicialize mais rapidamente o Systemd acaba por controlar parte do hardware, como :
+    <list>
+	<item> Reconhecimento de Hardware
+	<item> Montagem de Dispositivo
+	<item> Permissões de Montagem
+	</list>
+
+<sect1 id="s-systemd-polemicas">As polêmicas em torno do systemd
+<p>
+Tomando conta do hardware o sistema fica dependente do Systemd. Como é quase todo binário sua alteração, e conseguente
+controle do usuário torna-se complexa, e muitas vezes o usuário fica refém do binário, sem poder alterá-lo. 
+De certa forma, ele pode ser utilizado em qualquer distribuição Linux, mas tem mostrado melhor desempenho nas distribuições
+Debian, Red Hat e seus derivados.
+
+<sect id="s-systemd-uso">Usando o systemd
+<p>
+
+<sect1 id="s-systemd-systemctl">systemctl
+<p>
+Os comandos podem ser utilizados em qualquer distribuição.
+
+<p><strong>Verificando a versão instalada do systemd:</strong>
+<example>
+$ systemctl --version
+</example>
+
+<p><strong>Verificar o tempo de boot do sistema:</strong>
+<example>
+$ systemd-analyze
+</example>
+
+<p><strong>Verificar processos por grupos de controle:</strong>
+<example>
+# systemd-cgtop
+</example>
+
+<p><strong>Exibir uma lista de todas as units (serviços, pontos de montagem, devices):</strong>
+<example>
+# systemctl
+</example>
+
+<p><strong>Ativando o serviço "exemplo":</strong>
+<example>
+# systemctl start exemplo
+</example>
+
+<p><strong>Desativando "exemplo":</strong>
+<example>
+# systemctl stop example
+</example>
+
+<p><strong>Reiniciando o serviço "exemplo"</strong>
+<example>
+# systemctl restart exemplo
+</example>
+
+<p><strong>Verificando o status de "exemplo":</strong>
+<example>
+# systemctl status exemplo
+</example>
+
+<p><strong>Habilitando "exemplo" para iniciar no boot:</strong>
+<example>
+# systemctl enable exemplo
+</example>
+
+<p><strong>Desativando "exemplo" para que não inicie no boot:</strong>
+<example>
+# systemctl disable example
+</example>
+
+<sect1 id="s-systemd-journalctl">journalctl
+<p>
+
+<sect1 id="s-systemd-runlevel">Mudando o runlevel com systemd (ou como dar boot em "single mode")
+<p>
